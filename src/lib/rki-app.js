@@ -74,11 +74,6 @@ export const useCovidData = (county, inGermany) => {
     if (isSuccess) {
       // console.log('hi');
 
-      data.features
-        .filter(({ attributes }) => {
-          return attributes.county.includes('Aisch');
-        })
-        .forEach(c => console.log(c));
       setCountyData(
         data.features
           .filter(({ attributes }) => {

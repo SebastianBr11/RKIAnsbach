@@ -60,6 +60,8 @@ export const useLocation = () => {
     const hasLocationPerm = await hasLocationPermission();
 
     if (!hasLocationPerm) {
+      setCounty('Ansbach');
+      setInGermany(true);
       return;
     }
 
@@ -70,6 +72,7 @@ export const useLocation = () => {
     if (loading && canLoadAgain) {
       Geolocation.getCurrentPosition(
         position => {
+          console.log('position', position);
           setLoading(false);
           setLocation(position);
           setCanLoadAgain(false);

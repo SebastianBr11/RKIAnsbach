@@ -51,6 +51,7 @@ const styleSheet = colors =>
       fontFamily: fontFamily.medium,
       marginTop: 20,
       color: colors.text2,
+      textAlign: 'center',
     },
     boldText: {
       fontFamily: fontFamily.semiBold,

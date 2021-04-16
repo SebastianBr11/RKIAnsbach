@@ -20,11 +20,10 @@ const RkiData = ({
   error,
   isError,
   isLoading,
-  toggleData,
+  toggleView,
   isFetching,
   refetch,
   canSwitch,
-  buttonText,
   status,
   setCanLoadAgain,
   countyLocation,
@@ -137,9 +136,9 @@ const RkiData = ({
             style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 50 }}>
             <TouchableOpacity
               disabled={!canSwitch}
-              onPress={toggleData}
+              onPress={toggleView}
               style={[styles.button, { opacity: !canSwitch ? 0.2 : 1 }]}>
-              <Text style={styles.buttonText}>{buttonText}</Text>
+              <Text style={styles.buttonText}>Switch Numbers</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

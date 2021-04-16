@@ -1,6 +1,6 @@
 import { useNetInfo } from '@react-native-community/netinfo';
 import React, { useContext, useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { ColorSchemeContext } from '../App';
 import { useLocation } from '../lib/locationService';
 import { useCovidData } from '../lib/rki-app';
@@ -21,7 +21,7 @@ const MainPage = () => {
     useContext(ColorSchemeContext).colorScheme,
   );
 
-  console.log(county);
+  console.log('county', county);
 
   // console.log('countyData: ', countyData);
 
@@ -37,43 +37,28 @@ const MainPage = () => {
     }
   }, [getLocation, netInfo, options.isFetching]);
 
-  const [activeView, setActiveView] = useState('sk');
+  const [currentView, setCurrentView] = useState(0);
 
-  const toggleData = () => {
-    console.log('switching from', activeView);
-    if (activeView === 'sk') {
-      console.log('current', activeView);
-      setActiveView('lk');
+  const toggleView = () => {
+    console.log('switching from', currentView);
+    if (currentView === countyData.length - 1) {
+      console.log('current', currentView);
+      setCurrentView(0);
     } else {
-      setActiveView('sk');
+      console.log('upping the number');
+      setCurrentView(v => v + 1);
     }
   };
 
-  if (activeView === 'lk') {
+  if (inGermany) {
     return (
       <RkiData
         {...{
-          data: countyData[1],
-          canSwitch: countyData.length === 2,
+          data: countyData[currentView],
+          canSwitch: countyData.length > 1,
           ...options,
         }}
-        toggleData={toggleData}
-        buttonText="Switch to SK Numbers"
-        setCanLoadAgain={setCanLoadAgain}
-        countyLocation={county}
-        locationLoading={loading}
-      />
-    );
-  } else if (activeView === 'sk') {
-    return (
-      <RkiData
-        {...{
-          data: countyData[0],
-          canSwitch: countyData.length === 2,
-          ...options,
-        }}
-        toggleData={toggleData}
-        buttonText="Switch to LK Numbers"
+        toggleView={toggleView}
         setCanLoadAgain={setCanLoadAgain}
         countyLocation={county}
         locationLoading={loading}
@@ -82,8 +67,17 @@ const MainPage = () => {
   }
 
   return (
-    <View
-      style={{
+    <ScrollView
+      refreshControl={
+        <RefreshControl
+          refreshing={inGermany}
+          onRefresh={async () => {
+            setCanLoadAgain(true);
+            await getLocation();
+          }}
+        />
+      }
+      contentContainerStyle={{
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
@@ -94,7 +88,7 @@ const MainPage = () => {
         Make sure you're connected to the internet and you're currently in
         Germany
       </Text>
-    </View>
+    </ScrollView>
   );
 };
 
