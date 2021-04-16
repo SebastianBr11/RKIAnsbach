@@ -27,6 +27,8 @@ const RkiData = ({
   buttonText,
   status,
   setCanLoadAgain,
+  countyLocation,
+  locationLoading,
 }) => {
   const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
 
@@ -38,9 +40,9 @@ const RkiData = ({
     if (isError && netInfo.isInternetReachable) {
       refetch();
     }
-  }, [isError, refetch, netInfo]);
+  }, [isError, refetch, netInfo, countyLocation]);
 
-  if (isLoading) {
+  if (isLoading || status === 'idle') {
     return (
       <View
         style={{
@@ -145,19 +147,21 @@ const RkiData = ({
     );
   }
 
-  console.log('data rkidata: ', data);
+  // console.log('data rkidata: ', data);
+
+  console.log('status', status, 'data', data);
 
   return (
-    <View
-      style={{
+    <ScrollView
+      contentContainerStyle={{
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: colors.bg,
         color: colors.text2,
       }}>
-      <Text style={{ color: 'blue', fontSize: 20 }}>Something went wrong</Text>
-    </View>
+      <Text style={styles.text}>Something went wrong</Text>
+    </ScrollView>
   );
 };
 

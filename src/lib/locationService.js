@@ -1,3 +1,4 @@
+import { HERE_REVERSE_GEOCODE_KEY, HERE_REVERSE_GEOCODE_URL } from '@env';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -6,10 +7,6 @@ import {
   ToastAndroid,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-
-import { HERE_REVERSE_GEOCODE_KEY, HERE_REVERSE_GEOCODE_URL } from '@env';
-import formatRelative from 'date-fns/formatRelative';
-import { de } from 'date-fns/locale';
 
 export const useLocation = () => {
   const [loading, setLoading] = useState(false);
@@ -76,6 +73,7 @@ export const useLocation = () => {
           setLoading(false);
           setLocation(position);
           setCanLoadAgain(false);
+          console.log('got current position');
         },
         error => {
           setLoading(false);
@@ -106,7 +104,7 @@ export const useLocation = () => {
             County,
             Country,
           } = data.Response.View[0].Result[0].Location.Address;
-          console.log('data: ', data);
+          // console.log('data: ', data);
           setInGermany(Country === 'DEU');
           return setCounty(County);
         });
@@ -120,5 +118,7 @@ export const useLocation = () => {
   //   formatRelative(location.timestamp, new Date(), { locale: de }),
   // );
 
-  return [getLocation, county, location, inGermany, setCanLoadAgain];
+  console.log('location loading', loading);
+
+  return [getLocation, county, location, inGermany, setCanLoadAgain, loading];
 };

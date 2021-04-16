@@ -8,15 +8,24 @@ import { useStyle } from '../lib/styles';
 import RkiData from './RkiData';
 
 const MainPage = () => {
-  const [getLocation, county, _, inGermany, setCanLoadAgain] = useLocation();
+  const [
+    getLocation,
+    county,
+    _,
+    inGermany,
+    setCanLoadAgain,
+    loading,
+  ] = useLocation();
   const [options, countyData] = useCovidData(county || 'Ansbach', inGermany);
   const [isDark, colors, fontFamily, styles] = useStyle(
     useContext(ColorSchemeContext).colorScheme,
   );
 
-  console.log('countyData: ', countyData);
+  console.log(county);
 
-  console.log('hi from mainpage', county);
+  // console.log('countyData: ', countyData);
+
+  // console.log('hi from mainpage', county);
 
   const netInfo = useNetInfo();
 
@@ -51,6 +60,8 @@ const MainPage = () => {
         toggleData={toggleData}
         buttonText="Switch to SK Numbers"
         setCanLoadAgain={setCanLoadAgain}
+        countyLocation={county}
+        locationLoading={loading}
       />
     );
   } else if (activeView === 'sk') {
@@ -64,6 +75,8 @@ const MainPage = () => {
         toggleData={toggleData}
         buttonText="Switch to LK Numbers"
         setCanLoadAgain={setCanLoadAgain}
+        countyLocation={county}
+        locationLoading={loading}
       />
     );
   }

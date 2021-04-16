@@ -45,7 +45,7 @@ const fetchFullCovidData = async ({ queryKey: [_, isInternetReachable] }) => {
       );
     }
   } catch (e) {
-    console.error(e);
+    console.error('fetchFullCovidData error', e);
   }
 
   return covidFullData;
@@ -72,14 +72,22 @@ export const useCovidData = (county, inGermany) => {
 
   useEffect(() => {
     if (isSuccess) {
-      console.log('hi');
+      // console.log('hi');
+
+      data.features
+        .filter(({ attributes }) => {
+          return attributes.county.includes('Aisch');
+        })
+        .forEach(c => console.log(c));
       setCountyData(
         data.features
           .filter(({ attributes }) => {
             // console.log('county: ', county.replace(/ *\([^)]*\) */g, ''));
             // console.log(attributes.county.includes('Aisch'));
-            return attributes.county.includes(
-              county.replace(/ *\([^)]*\) */g, ''),
+            return (
+              attributes.county.includes(
+                county.replace(/ *\([^)]*\) */g, ''),
+              ) || attributes.county.includes(county.split(' ')[0])
             );
           })
           .map(({ attributes }) => ({ ...attributes }))
@@ -100,6 +108,15 @@ export const useCovidData = (county, inGermany) => {
     }
   }, [isSuccess, county, data]);
 
+  console.log(
+    'status',
+    status,
+    'isSuccess',
+    isSuccess,
+    'data',
+    countyData.length,
+  );
+
   return [
     {
       isSuccess,
@@ -115,31 +132,31 @@ export const useCovidData = (county, inGermany) => {
   ];
 };
 
-const cityAgs = ['09561', '09571'];
+// const cityAgs = ['09561', '09571'];
 
-const baseUrl = 'https://api.corona-zahlen.org/districts/';
+// const baseUrl = 'https://api.corona-zahlen.org/districts/';
 
-const fetchLkData = async ({ queryKey: [_, county] }) => {
-  console.log(county);
-  return await fetch(baseUrl + cityAgs[1])
-    .then(res => {
-      return res.json();
-    })
-    .then(data => {
-      return data.data[cityAgs[1]];
-    });
-};
+// const fetchLkData = async ({ queryKey: [_, county] }) => {
+//   console.log(county);
+//   return await fetch(baseUrl + cityAgs[1])
+//     .then(res => {
+//       return res.json();
+//     })
+//     .then(data => {
+//       return data.data[cityAgs[1]];
+//     });
+// };
 
-const fetchSkData = async ({ queryKey: [_, county] }) => {
-  console.log(county);
-  return await fetch(baseUrl + cityAgs[0])
-    .then(res => {
-      return res.json();
-    })
-    .then(data => {
-      return data.data[cityAgs[0]];
-    });
-};
+// const fetchSkData = async ({ queryKey: [_, county] }) => {
+//   console.log(county);
+//   return await fetch(baseUrl + cityAgs[0])
+//     .then(res => {
+//       return res.json();
+//     })
+//     .then(data => {
+//       return data.data[cityAgs[0]];
+//     });
+// };
 
 // const {
 //   data: lkData,
