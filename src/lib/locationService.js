@@ -1,4 +1,5 @@
 import { HERE_REVERSE_GEOCODE_KEY, HERE_REVERSE_GEOCODE_URL } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -7,6 +8,8 @@ import {
   ToastAndroid,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
+
+const LOCATION = '@location';
 
 export const useLocation = () => {
   const [loading, setLoading] = useState(false);
@@ -56,8 +59,22 @@ export const useLocation = () => {
     return false;
   };
 
-  const getLocation = async () => {
+  const getLocation = async hasInternet => {
     const hasLocationPerm = await hasLocationPermission();
+    const storedLocation = await AsyncStorage.getItem(LOCATION);
+
+    console.log('stored location', JSON.parse(storedLocation));
+
+    console.log('has internet', hasInternet);
+
+    console.log('has stored location', !!storedLocation);
+    if (!!storedLocation && !hasInternet) {
+      const { storedCounty, storedInGermany } = JSON.parse(storedLocation);
+      setCounty(storedCounty);
+      setInGermany(storedInGermany);
+      console.log('set county and inGermany', storedCounty, storedInGermany);
+      return;
+    }
 
     if (!hasLocationPerm) {
       setCounty('Ansbach');
@@ -102,13 +119,22 @@ export const useLocation = () => {
       const url = `${HERE_REVERSE_GEOCODE_URL}?apiKey=${HERE_REVERSE_GEOCODE_KEY}&mode=retrieveAddresses&maxresults=1&prox=${lat},${lon},150`;
       fetch(url)
         .then(res => res.json())
-        .then(data => {
+        .then(async data => {
           const {
             County,
             Country,
           } = data.Response.View[0].Result[0].Location.Address;
           // console.log('data: ', data);
+          console.log('setting in germany');
           setInGermany(Country === 'DEU');
+          console.log('setting to local storage');
+          await AsyncStorage.setItem(
+            LOCATION,
+            JSON.stringify({
+              storedCounty: County,
+              storedInGermany: Country === 'DEU',
+            }),
+          );
           return setCounty(County);
         });
       console.log('url:', url);

@@ -21,19 +21,15 @@ const MainPage = () => {
     useContext(ColorSchemeContext).colorScheme,
   );
 
-  console.log('county', county);
-
-  // console.log('countyData: ', countyData);
-
-  // console.log('hi from mainpage', county);
-
   const netInfo = useNetInfo();
 
   useEffect(() => {
     if (netInfo.isInternetReachable) {
       (async () => {
-        await getLocation();
+        await getLocation(true);
       })();
+    } else {
+      (async () => await getLocation(false))();
     }
   }, [getLocation, netInfo, options.isFetching]);
 
@@ -86,7 +82,7 @@ const MainPage = () => {
       }}>
       <Text style={[styles.text, { fontSize: 30, paddingHorizontal: 20 }]}>
         Make sure you're connected to the internet and you're currently in
-        Germany
+        Germany, then try again
       </Text>
     </ScrollView>
   );

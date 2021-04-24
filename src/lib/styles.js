@@ -23,7 +23,7 @@ const fontFamily = {
 };
 
 const colors = isDark => ({
-  bg: isDark() ? '#1F2937' : '#F9FAFB',
+  bg: isDark() ? '#1F222F' : '#F9FAFB',
   text: isDark() ? '#E5E7EB' : '#4B5563',
   text2: '#9CA3AF',
   text3: isDark() ? '#F9FAFB' : '#1F2937',
@@ -33,7 +33,7 @@ const colors = isDark => ({
   primary600: isDark() ? '#FECACA' : '#DC2626',
 });
 
-const styleSheet = colors =>
+const styleSheet = theColors =>
   StyleSheet.create({
     scrollView: {
       alignItems: 'center',
@@ -45,40 +45,40 @@ const styleSheet = colors =>
     switch: {},
     container: {
       flex: 1,
-      backgroundColor: colors.bg,
+      backgroundColor: theColors.bg,
     },
     dateText: {
       fontFamily: fontFamily.medium,
       marginTop: 20,
-      color: colors.text2,
+      color: theColors.text2,
       textAlign: 'center',
     },
     boldText: {
       fontFamily: fontFamily.semiBold,
-      color: colors.primary500,
+      color: theColors.primary500,
     },
     text: {
       fontFamily: fontFamily.regular,
       fontSize: 25,
-      color: colors.text,
+      color: theColors.text,
       textAlign: 'center',
     },
     header: {
-      color: colors.text3,
+      color: theColors.text3,
       fontFamily: fontFamily.semiBold,
       fontSize: 35,
       textAlign: 'center',
     },
     button: {
-      backgroundColor: colors.primary100,
+      backgroundColor: theColors.primary100,
       paddingHorizontal: 30,
       paddingVertical: 20,
-      borderColor: colors.primary300,
+      borderColor: theColors.primary300,
       borderWidth: 1,
       borderRadius: 5,
     },
     buttonText: {
-      color: colors.primary600,
+      color: theColors.primary600,
       fontFamily: fontFamily.light,
       fontSize: 20,
     },
