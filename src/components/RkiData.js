@@ -30,7 +30,6 @@ const RkiData = ({
   locationLoading,
 }) => {
   const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
-
   const [isDark, colors, fontFamily, styles] = useStyle(colorScheme);
 
   const netInfo = useNetInfo();

@@ -4,48 +4,42 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import { differenceInHours } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { parseDate } from './util';
+import { parseDate, useLocalStorage } from './util';
 
 const COVID_FULL_DATA = '@covid_Full_Data';
 
-const fetchFullCovidData = async ({ queryKey: [_, isInternetReachable] }) => {
-  let covidFullData;
+const fetchFullCovidData = async ({
+  queryKey: [_, isInternetReachable, getItem],
+}) => {
+  console.log(getItem);
+  let covidFullData = getItem(COVID_FULL_DATA);
+  let hasData = false;
 
   try {
-    covidFullData = await AsyncStorage.getItem(COVID_FULL_DATA);
+    const lastUpdated = parseDate(
+      JSON.parse(covidFullData).features[0].attributes.last_update,
+    );
 
-    let hasData = false;
-    try {
-      const lastUpdated = parseDate(
-        JSON.parse(covidFullData).features[0].attributes.last_update,
-      );
-
-      // First fetches data from local storage
-      if (covidFullData) {
-        console.log('does have covid data');
-        hasData = true;
-        covidFullData = JSON.parse(covidFullData);
-      }
-
-      // If the user can fetch data and data is older than 24 hours, fetches the new data
-      if (
-        isInternetReachable &&
-        differenceInHours(lastUpdated, new Date()) <= -24
-      ) {
-        hasData = false;
-      }
-    } catch (e) {}
-
-    if (!hasData) {
-      console.log(`doesn't have covid data`);
-      covidFullData = await fetch(RKI_COUNTY_DATA_URL).then(res => res.json());
-      await AsyncStorage.setItem(
-        COVID_FULL_DATA,
-        JSON.stringify(covidFullData),
-      );
+    // First fetches data from local storage
+    if (covidFullData) {
+      console.log('does have covid data');
+      hasData = true;
+      covidFullData = JSON.parse(covidFullData);
     }
-  } catch (e) {
-    console.error('fetchFullCovidData error', e);
+
+    // If the user can fetch data and data is older than 24 hours, fetches the new data
+    if (
+      isInternetReachable &&
+      differenceInHours(lastUpdated, new Date()) <= -24
+    ) {
+      hasData = false;
+    }
+  } catch (e) {}
+
+  if (!hasData) {
+    console.log(`doesn't have covid data`);
+    covidFullData = await fetch(RKI_COUNTY_DATA_URL).then(res => res.json());
+    await AsyncStorage.setItem(COVID_FULL_DATA, JSON.stringify(covidFullData));
   }
 
   return covidFullData;
@@ -53,6 +47,7 @@ const fetchFullCovidData = async ({ queryKey: [_, isInternetReachable] }) => {
 
 export const useCovidData = (county, inGermany) => {
   const { isInternetReachable } = useNetInfo();
+  const { getItem } = useLocalStorage(COVID_FULL_DATA);
 
   const {
     data,
@@ -64,7 +59,7 @@ export const useCovidData = (county, inGermany) => {
     isFetching,
     status,
     refetch,
-  } = useQuery(['rki-full', isInternetReachable], fetchFullCovidData, {
+  } = useQuery(['rki-full', isInternetReachable, getItem], fetchFullCovidData, {
     enabled: !!county && inGermany,
   });
 
@@ -73,7 +68,6 @@ export const useCovidData = (county, inGermany) => {
   useEffect(() => {
     if (isSuccess) {
       // console.log('hi');
-
       setCountyData(
         data.features
           .filter(({ attributes }) => {
@@ -88,6 +82,7 @@ export const useCovidData = (county, inGermany) => {
           .map(({ attributes }) => ({ ...attributes }))
           .map(district => ({
             lastUpdated: parseDate(district.last_update),
+            ags: district.RS,
             name: district.GEN,
             county: district.county,
             state: district.BL,
@@ -111,6 +106,8 @@ export const useCovidData = (county, inGermany) => {
     'data',
     countyData.length,
   );
+
+  console.log(countyData[0]?.ags);
 
   return [
     {

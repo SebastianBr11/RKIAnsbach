@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export function parseDate(dateString) {
   const parts = dateString.split(',');
   const dateParts = parts[0].split('.');
@@ -10,3 +12,21 @@ export function parseDate(dateString) {
     parseInt(timeParts[1]),
   );
 }
+
+export const useLocalStorage = storageKey => {
+  const getItem = async () => {
+    let data;
+
+    try {
+      data = await AsyncStorage.getItem(storageKey);
+    } catch (e) {}
+
+    return data || null;
+  };
+
+  const setItem = async newValue => {
+    await AsyncStorage.setItem(storageKey, newValue);
+  };
+
+  return { getItem, setItem };
+};

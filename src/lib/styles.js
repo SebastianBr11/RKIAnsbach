@@ -31,6 +31,7 @@ const colors = isDark => ({
   primary300: isDark() ? '#B91C1C' : '#FCA5A5',
   primary500: '#EF4444',
   primary600: isDark() ? '#FECACA' : '#DC2626',
+  tabBar: isDark() ? '#222835' : '#fff',
 });
 
 const styleSheet = theColors =>
