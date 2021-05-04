@@ -1,20 +1,17 @@
-import 'react-native-gesture-handler';
 import React, { createContext, useState } from 'react';
 import { Appearance, StatusBar } from 'react-native';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AnimatedTabBarNavigator } from 'react-native-animated-nav-tab-bar';
 import MainPage from './components/MainPage';
 import { useStyle } from './lib/styles';
 import HistoryScreen from './components/HistoryScreen';
 import { HomeIcon, CalendarIcon } from './components/icons';
+import ColorThemeModule from './modules/ColorThemeModule';
 
 const queryClient = new QueryClient();
 
 export const ColorSchemeContext = createContext('light');
-
-const Tab = createBottomTabNavigator();
 
 const Tabs = AnimatedTabBarNavigator();
 
@@ -29,6 +26,10 @@ export default function App() {
   });
 
   const toggleColorScheme = () => {
+    ColorThemeModule.setTheme(
+      colorScheme === 'light' ? '#222835' : '#ffffff',
+      isDark(),
+    );
     setColorScheme(c => (c === 'light' ? 'dark' : 'light'));
   };
 
