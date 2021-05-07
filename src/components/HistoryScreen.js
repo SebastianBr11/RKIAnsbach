@@ -12,7 +12,7 @@ const HistoryScreen = () => {
   const [show, setShow] = useState(false);
 
   const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
-  const [isDark, colors, fontFamily, styles] = useStyle(colorScheme);
+  const { isDark, colors, fontFamily, styles } = useStyle(colorScheme);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;

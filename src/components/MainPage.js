@@ -17,7 +17,7 @@ const MainPage = () => {
     loading,
   ] = useLocation();
   const [options, countyData] = useCovidData(county || 'Ansbach', inGermany);
-  const [isDark, colors, fontFamily, styles] = useStyle(
+  const { isDark, colors, fontFamily, styles } = useStyle(
     useContext(ColorSchemeContext).colorScheme,
   );
 

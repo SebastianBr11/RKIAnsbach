@@ -1,13 +1,17 @@
-import { StyleSheet } from 'react-native';
+import { ColorSchemeName, StyleSheet } from 'react-native';
 
-export const useStyle = colorScheme => {
+export const useStyle = (colorScheme: ColorSchemeName) => {
   const isDark = () => {
     return colorScheme === 'dark';
   };
 
   const theColors = colors(isDark);
-
-  return [isDark, theColors, fontFamily, styleSheet(theColors)];
+  return {
+    isDark,
+    colors: theColors,
+    fontFamily,
+    styles: styleSheet(theColors),
+  };
 };
 
 const fontFamily = {
@@ -22,7 +26,20 @@ const fontFamily = {
   thin: 'Inter-Thin',
 };
 
-const colors = isDark => ({
+interface Colors {
+  bg: string;
+  text: string;
+  text2: string;
+  text3: string;
+  primary100: string;
+  primary300: string;
+  primary500: string;
+  primary600: string;
+  tabBar: string;
+  tabBarText: string;
+}
+
+const colors = (isDark: () => boolean) => ({
   bg: isDark() ? '#1F222F' : '#F9FAFB',
   text: isDark() ? '#E5E7EB' : '#4B5563',
   text2: '#9CA3AF',
@@ -32,20 +49,21 @@ const colors = isDark => ({
   primary500: '#EF4444',
   primary600: isDark() ? '#FECACA' : '#DC2626',
   tabBar: isDark() ? '#222835' : '#ffffff',
+  tabBarText: isDark() ? '#1F2937' : '#F9FAFB',
 });
 
-const styleSheet = theColors =>
+const styleSheet = (theColors: Colors) =>
   StyleSheet.create({
     scrollView: {
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: 30,
       flex: 1,
-      minHeight: 600,
+      minHeight: 500,
     },
     switch: {},
     container: {
-      flex: 1,
+      flex: 2,
       backgroundColor: theColors.bg,
     },
     dateText: {
