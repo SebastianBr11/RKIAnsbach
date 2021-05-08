@@ -87,10 +87,8 @@ const SwipeableComponent: FC = ({ children }) => {
     <Swipeable
       ref={swipeableRef}
       onSwipeableWillOpen={onSwipeableWillOpen}
-      // onSwipeableOpen={() => swipeableRef.current.close()}
       renderLeftActions={useCallback(renderLeftActions, [renderLeftActions])}
       leftThreshold={0.8 * 200}
-      // onEnded={() => swipeableRef.current.close()}
       containerStyle={[
         {
           alignItems: 'center',

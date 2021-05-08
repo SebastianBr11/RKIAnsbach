@@ -1,6 +1,6 @@
 import { useNetInfo } from '@react-native-community/netinfo';
 import React, { useContext, useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, Text } from 'react-native';
 import { ColorSchemeContext } from '../App';
 import { useLocation } from '../lib/locationService';
 import { useCovidData } from '../lib/rki-app';
@@ -8,16 +8,15 @@ import { useStyle } from '../lib/styles';
 import RkiData from './RkiData';
 
 const MainPage = () => {
-  const [
+  const {
     getLocation,
     county,
-    _,
     inGermany,
     setCanLoadAgain,
     loading,
-  ] = useLocation();
-  const [options, countyData] = useCovidData(county || 'Ansbach', inGermany);
-  const { isDark, colors, fontFamily, styles } = useStyle(
+  } = useLocation();
+  const { options, countyData } = useCovidData(county || 'Ansbach', inGermany);
+  const { colors, styles } = useStyle(
     useContext(ColorSchemeContext).colorScheme,
   );
 
@@ -69,7 +68,7 @@ const MainPage = () => {
           refreshing={inGermany}
           onRefresh={async () => {
             setCanLoadAgain(true);
-            await getLocation();
+            await getLocation(netInfo.isInternetReachable || false);
           }}
         />
       }
@@ -78,7 +77,6 @@ const MainPage = () => {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: colors.bg,
-        color: colors.text2,
       }}>
       <Text style={[styles.text, { fontSize: 30, paddingHorizontal: 20 }]}>
         Make sure you're connected to the internet and you're currently in

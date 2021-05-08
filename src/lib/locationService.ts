@@ -13,8 +13,10 @@ const LOCATION = '@location';
 
 export const useLocation = () => {
   const [loading, setLoading] = useState(false);
-  const [location, setLocation] = useState(null);
-  const [county, setCounty] = useState(null);
+  const [location, setLocation] = useState<Geolocation.GeoPosition | null>(
+    null,
+  );
+  const [county, setCounty] = useState<string | null>(null);
   const [inGermany, setInGermany] = useState(false);
   const [canLoadAgain, setCanLoadAgain] = useState(true);
 
@@ -59,13 +61,9 @@ export const useLocation = () => {
     return false;
   };
 
-  const getLocation = async hasInternet => {
+  const getLocation = async (hasInternet: boolean) => {
     const hasLocationPerm = await hasLocationPermission();
     const storedLocation = await AsyncStorage.getItem(LOCATION);
-
-    console.log('stored location', JSON.parse(storedLocation));
-
-    console.log('has internet', hasInternet);
 
     console.log('has stored location', !!storedLocation);
     if (!!storedLocation && !hasInternet) {
@@ -149,5 +147,5 @@ export const useLocation = () => {
 
   console.log('location loading', loading);
 
-  return [getLocation, county, location, inGermany, setCanLoadAgain, loading];
+  return { getLocation, county, location, inGermany, setCanLoadAgain, loading };
 };

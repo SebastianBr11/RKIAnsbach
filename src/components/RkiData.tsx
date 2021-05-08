@@ -1,7 +1,7 @@
 import { useNetInfo } from '@react-native-community/netinfo';
 import { formatRelative } from 'date-fns';
 import { de } from 'date-fns/locale';
-import React, { useContext, useEffect } from 'react';
+import React, { FC, useContext, useEffect } from 'react';
 import {
   RefreshControl,
   ScrollView,
@@ -12,12 +12,31 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { QueryObserverResult, RefetchOptions } from 'react-query';
 import { ColorSchemeContext } from '../App';
 import { useStyle } from '../lib/styles';
+import { CovidCountyData, CovidData } from '../types/CovidData';
 
-const RkiData = ({
+interface RkiDataProps {
+  data: CovidCountyData;
+  error: Error | null;
+  isError: boolean;
+  isLoading: boolean;
+  toggleView: () => void;
+  isFetching: boolean;
+  refetch: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<CovidData, Error>>;
+  canSwitch: boolean;
+  status: 'error' | 'idle' | 'loading' | 'success';
+  setCanLoadAgain: React.Dispatch<React.SetStateAction<boolean>>;
+  countyLocation: string | null;
+  locationLoading: boolean;
+}
+
+const RkiData: FC<RkiDataProps> = ({
   data,
-  error,
+  error: _error,
   isError,
   isLoading,
   toggleView,
@@ -27,10 +46,10 @@ const RkiData = ({
   status,
   setCanLoadAgain,
   countyLocation,
-  locationLoading,
+  locationLoading: _locationLoading,
 }) => {
   const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
-  const { isDark, colors, fontFamily, styles } = useStyle(colorScheme);
+  const { isDark, colors, styles } = useStyle(colorScheme);
 
   const netInfo = useNetInfo();
 
@@ -48,7 +67,6 @@ const RkiData = ({
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: colors.bg,
-          color: colors.text2,
         }}>
         <Text style={[styles.text]}>Loading...</Text>
       </View>
@@ -59,11 +77,9 @@ const RkiData = ({
     return (
       <View
         style={[
-          styles.bg,
           {
             alignItems: 'center',
             justifyContent: 'center',
-            color: colors.text2,
           },
         ]}>
         <Text style={[styles.text]}>Oops, there was an error</Text>
@@ -156,7 +172,6 @@ const RkiData = ({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: colors.bg,
-        color: colors.text2,
       }}>
       <Text style={styles.text}>Something went wrong</Text>
     </ScrollView>

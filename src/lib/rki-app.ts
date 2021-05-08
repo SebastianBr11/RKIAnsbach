@@ -1,30 +1,34 @@
+import { CovidCountyData, CovidData } from './../types/CovidData.d';
 import { RKI_COUNTY_DATA_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNetInfo } from '@react-native-community/netinfo';
+import { NetInfoState, useNetInfo } from '@react-native-community/netinfo';
 import { differenceInHours } from 'date-fns';
 import { useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryResult } from 'react-query';
 import { parseDate, useLocalStorage } from './util';
 
 const COVID_FULL_DATA = '@covid_Full_Data';
 
 const fetchFullCovidData = async ({
-  queryKey: [_, isInternetReachable, getItem],
+  queryKey: [_queryKey, isInternetReachable, getItem],
+}: {
+  queryKey: [string, boolean, () => Promise<string | null>];
 }) => {
   console.log(getItem);
-  let covidFullData = getItem(COVID_FULL_DATA);
+  const covidFullData = await getItem();
+  let covidDataObject = {};
   let hasData = false;
 
   try {
     const lastUpdated = parseDate(
-      JSON.parse(covidFullData).features[0].attributes.last_update,
+      JSON.parse(covidFullData || '').features[0].attributes.last_update,
     );
 
     // First fetches data from local storage
     if (covidFullData) {
       console.log('does have covid data');
       hasData = true;
-      covidFullData = JSON.parse(covidFullData);
+      covidDataObject = JSON.parse(covidFullData);
     }
 
     // If the user can fetch data and data is older than 24 hours, fetches the new data
@@ -38,15 +42,15 @@ const fetchFullCovidData = async ({
 
   if (!hasData) {
     console.log(`doesn't have covid data`);
-    covidFullData = await fetch(RKI_COUNTY_DATA_URL).then(res => res.json());
+    covidDataObject = await fetch(RKI_COUNTY_DATA_URL).then(res => res.json());
     await AsyncStorage.setItem(COVID_FULL_DATA, JSON.stringify(covidFullData));
   }
 
-  return covidFullData;
+  return covidDataObject as CovidData;
 };
 
-export const useCovidData = (county, inGermany) => {
-  const { isInternetReachable } = useNetInfo();
+export const useCovidData = (county: string, inGermany: boolean) => {
+  const { isInternetReachable }: NetInfoState = useNetInfo();
   const { getItem } = useLocalStorage(COVID_FULL_DATA);
 
   const {
@@ -55,22 +59,30 @@ export const useCovidData = (county, inGermany) => {
     error,
     isError,
     isLoading,
-    toggleData,
     isFetching,
     status,
     refetch,
-  } = useQuery(['rki-full', isInternetReachable, getItem], fetchFullCovidData, {
-    enabled: !!county && inGermany,
-  });
+  }: UseQueryResult<CovidData, Error> = useQuery(
+    ['rki-full', isInternetReachable || false, getItem],
+    fetchFullCovidData,
+    {
+      enabled: !!county && inGermany,
+    },
+  );
 
-  const [countyData, setCountyData] = useState([]);
+  const [countyData, setCountyData] = useState<CovidCountyData[]>([]);
 
   useEffect(() => {
+    if (!data) {
+      console.log('data is null');
+      return;
+    }
+
     if (isSuccess) {
       // console.log('hi');
       setCountyData(
         data.features
-          .filter(({ attributes }) => {
+          ?.filter(({ attributes }) => {
             // console.log('county: ', county.replace(/ *\([^)]*\) */g, ''));
             // console.log(attributes.county.includes('Aisch'));
             return (
@@ -93,7 +105,7 @@ export const useCovidData = (county, inGermany) => {
             deathsPerWeek: district.death7_lk,
             weekIncidence: (district.cases7_lk / district.EWZ) * 100000,
             casesPer100k: (district.cases / district.EWZ) * 100000,
-          })),
+          })) || [],
       );
     }
   }, [isSuccess, county, data]);
@@ -109,19 +121,18 @@ export const useCovidData = (county, inGermany) => {
 
   console.log(countyData[0]?.ags);
 
-  return [
-    {
+  return {
+    options: {
       isSuccess,
       error,
       isError,
       isLoading,
-      toggleData,
       isFetching,
       refetch,
       status,
     },
     countyData,
-  ];
+  };
 };
 
 // const cityAgs = ['09561', '09571'];

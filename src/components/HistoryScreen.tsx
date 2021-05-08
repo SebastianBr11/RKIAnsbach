@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { View, Button, Platform, Text } from 'react-native';
 import { de } from 'date-fns/locale';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { useStyle } from '../lib/styles';
 import { ColorSchemeContext } from '../App';
@@ -12,9 +12,9 @@ const HistoryScreen = () => {
   const [show, setShow] = useState(false);
 
   const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
-  const { isDark, colors, fontFamily, styles } = useStyle(colorScheme);
+  const { isDark, colors, styles } = useStyle(colorScheme);
 
-  const onChange = (event, selectedDate) => {
+  const onChange = (_event: Event, selectedDate: Date | undefined) => {
     const currentDate = selectedDate || date;
     setShow(Platform.OS === 'ios');
     setDate(currentDate);
