@@ -5,7 +5,7 @@ import React, {
   useState,
   useContext,
   useCallback,
-  FC,
+  ReactNode,
 } from 'react';
 import { Animated, Appearance, ColorSchemeName, StatusBar } from 'react-native';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -21,6 +21,7 @@ import HistoryScreen from './components/HistoryScreen';
 import { HomeIcon, CalendarIcon } from './components/icons';
 import ColorThemeModule from './modules/ColorThemeModule';
 import { Swipeable } from 'react-native-gesture-handler';
+import AnimatedBootSplash from './components/AnimatedBootSplash';
 
 const queryClient = new QueryClient();
 
@@ -36,9 +37,13 @@ export const ColorSchemeContext = createContext<AppContextInterface>({
 
 const Tabs = AnimatedTabBarNavigator();
 
-const SwipeableComponent: FC = ({ children }) => {
+interface SwipeableComponentProps {
+  children: ReactNode;
+}
+
+const SwipeableComponent = ({ children }: SwipeableComponentProps) => {
   const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
-  const { styles } = useStyle(colorScheme);
+  const { styles, colors } = useStyle(colorScheme);
 
   const [willActivate, setWillActivate] = useState<Boolean>(false);
   const swipeableRef = useRef<Swipeable>(null);
@@ -48,21 +53,26 @@ const SwipeableComponent: FC = ({ children }) => {
     _dragX: Animated.AnimatedInterpolation,
   ) => {
     const trans = progress.interpolate({
-      inputRange: [0, 0.2, 0.5, 0.6, 0.8],
+      inputRange: [0, 0.5, 0.8, 0.85, 1],
       outputRange: [-200, -100, -50, -25, 0],
       extrapolate: 'clamp',
     });
 
     progress.addListener(val => {
-      if (willActivate !== val.value >= 0.8) {
-        setWillActivate(val.value >= 0.8);
+      if (willActivate !== val.value >= 1) {
+        setWillActivate(val.value >= 1);
       }
+      console.log('progress', val);
+    });
+
+    trans.addListener(value => {
+      console.log('trans', value);
     });
 
     return (
       <Animated.View
         style={{
-          backgroundColor: 'black',
+          backgroundColor: colors.text2,
           transform: [{ translateX: trans }],
           width: 200,
           alignItems: 'center',
@@ -80,7 +90,7 @@ const SwipeableComponent: FC = ({ children }) => {
   const onSwipeableWillOpen = () => {
     console.log('opened');
     toggleColorScheme();
-    setTimeout(() => swipeableRef.current?.close(), 0);
+    // setTimeout(() => swipeableRef.current?.close(), 0);
   };
 
   return (
@@ -88,20 +98,26 @@ const SwipeableComponent: FC = ({ children }) => {
       ref={swipeableRef}
       onSwipeableWillOpen={onSwipeableWillOpen}
       renderLeftActions={useCallback(renderLeftActions, [renderLeftActions])}
-      leftThreshold={0.8 * 200}
+      leftThreshold={200}
       containerStyle={[
+        styles.container,
         {
           alignItems: 'center',
-          justifyContent: 'space-around',
-          padding: 30,
           flex: 1,
         },
-        styles.container,
       ]}>
       {children}
     </Swipeable>
   );
 };
+
+function withSwipeable(Component: React.ElementType) {
+  return () => (
+    <SwipeableComponent>
+      <Component />
+    </SwipeableComponent>
+  );
+}
 
 export default function App() {
   const [colorScheme, setColorScheme] = useState(Appearance.getColorScheme());
@@ -141,66 +157,72 @@ export default function App() {
           barStyle={isDark() ? 'light-content' : 'dark-content'}
           backgroundColor={colors.bg}
         />
-        <NavigationContainer>
-          <Tabs.Navigator
-            tabBarOptions={{
-              activeBackgroundColor: colors.text3,
-              activeTintColor: colors.tabBarText,
-              inactiveTintColor: colors.text,
-            }}
-            appearance={{
-              dotSize: DotSize.SMALL,
-              tabBarBackground: colors.tabBar,
-              whenInactiveShow: TabElementDisplayOptions.ICON_ONLY,
-            }}>
-            <Tabs.Screen
-              name="Home"
-              component={MainPage}
-              options={{
-                tabBarIcon: ({
-                  focused,
-                  color,
-                  size,
-                }: {
-                  focused: Boolean;
-                  color: String;
-                  size: Number;
-                }) => (
-                  <HomeIcon
-                    fill={focused ? color : colors.text3}
-                    height={size ? size : 24}
-                    width={size ? size : 24}
-                  />
-                ),
-              }}
-            />
-            <Tabs.Screen
-              name="History"
-              options={{
-                tabBarIcon: ({
-                  focused,
-                  color,
-                  size,
-                }: {
-                  focused: Boolean;
-                  color: String;
-                  size: Number;
-                }) => (
-                  <CalendarIcon
-                    fill={focused ? color : colors.text3}
-                    height={size ? size : 24}
-                    width={size ? size : 24}
-                  />
-                ),
-              }}>
-              {() => (
+        <AnimatedBootSplash>
+          {({ completeBootSplash }) => (
+            <NavigationContainer onReady={completeBootSplash}>
+              <Tabs.Navigator
+                tabBarOptions={{
+                  activeBackgroundColor: colors.text3,
+                  activeTintColor: colors.tabBarText,
+                  inactiveTintColor: colors.text,
+                }}
+                appearance={{
+                  dotSize: DotSize.SMALL,
+                  tabBarBackground: colors.tabBar,
+                  whenInactiveShow: TabElementDisplayOptions.ICON_ONLY,
+                }}>
+                <Tabs.Screen
+                  component={withSwipeable(MainPage)}
+                  name="Home"
+                  options={{
+                    tabBarIcon: ({
+                      focused,
+                      color,
+                      size,
+                    }: {
+                      focused: boolean;
+                      color: string;
+                      size: number;
+                    }) => (
+                      <HomeIcon
+                        fill={focused ? color : colors.text3}
+                        height={size ? size : 24}
+                        width={size ? size : 24}
+                      />
+                    ),
+                  }}
+                />
+                <Tabs.Screen
+                  component={withSwipeable(HistoryScreen)}
+                  name="History"
+                  options={{
+                    tabBarIcon: ({
+                      focused,
+                      color,
+                      size,
+                    }: {
+                      focused: boolean;
+                      color: string;
+                      size: number;
+                    }) => (
+                      <CalendarIcon
+                        fill={focused ? color : colors.text3}
+                        height={size ? size : 24}
+                        width={size ? size : 24}
+                      />
+                    ),
+                  }}
+                />
+                {/* {() => (
                 <SwipeableComponent>
                   <HistoryScreen />
                 </SwipeableComponent>
               )}
-            </Tabs.Screen>
-          </Tabs.Navigator>
-        </NavigationContainer>
+            </Tabs.Screen> */}
+              </Tabs.Navigator>
+            </NavigationContainer>
+          )}
+        </AnimatedBootSplash>
       </QueryClientProvider>
     </ColorSchemeContext.Provider>
   );

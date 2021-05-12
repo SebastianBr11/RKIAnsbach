@@ -31,16 +31,20 @@ const HistoryScreen = () => {
   return (
     <View
       style={[
+        styles.container,
         {
           alignItems: 'center',
           justifyContent: 'space-around',
           padding: 30,
           flex: 1,
         },
-        styles.container,
       ]}>
       <View style={{ alignItems: 'center' }}>
-        <Text style={[styles.text, { fontSize: 13 }]}>Dark Mode: </Text>
+        <Text style={[styles.text, { fontSize: 13 }]}>
+          Dark Mode: Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+          Molestias, veritatis? Corporis aut provident reiciendis sequi sapiente
+          illo unde recusandae. Id?
+        </Text>
         <Switch
           style={styles.switch}
           trackColor={{ false: colors.text, true: colors.text }}

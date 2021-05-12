@@ -1,7 +1,7 @@
 import { useNetInfo } from '@react-native-community/netinfo';
 import { formatRelative } from 'date-fns';
 import { de } from 'date-fns/locale';
-import React, { FC, useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   RefreshControl,
   ScrollView,
@@ -34,7 +34,7 @@ interface RkiDataProps {
   locationLoading: boolean;
 }
 
-const RkiData: FC<RkiDataProps> = ({
+const RkiData = ({
   data,
   error: _error,
   isError,
@@ -47,7 +47,7 @@ const RkiData: FC<RkiDataProps> = ({
   setCanLoadAgain,
   countyLocation,
   locationLoading: _locationLoading,
-}) => {
+}: RkiDataProps) => {
   const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
   const { isDark, colors, styles } = useStyle(colorScheme);
 

@@ -63,7 +63,7 @@ const styleSheet = (theColors: Colors) =>
     },
     switch: {},
     container: {
-      flex: 2,
+      flex: 1,
       backgroundColor: theColors.bg,
     },
     dateText: {
