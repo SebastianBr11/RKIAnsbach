@@ -1,36 +1,16 @@
 import { useNetInfo } from '@react-native-community/netinfo';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { RefreshControl, ScrollView, Text } from 'react-native';
-import { ColorSchemeContext } from '../App';
-import { useLocation } from '../lib/locationService';
-import { useCovidData } from '../lib/rki-app';
+import { ColorSchemeContext, CovidDataContext } from '../App';
 import { useStyle } from '../lib/styles';
 import RkiData from './RkiData';
 
 const MainPage = () => {
-  const {
-    getLocation,
-    county,
-    inGermany,
-    setCanLoadAgain,
-    loading,
-  } = useLocation();
-  const { options, countyData } = useCovidData(county || 'Ansbach', inGermany);
+  const netInfo = useNetInfo();
+  const { options, countyData, location } = useContext(CovidDataContext);
   const { colors, styles } = useStyle(
     useContext(ColorSchemeContext).colorScheme,
   );
-
-  const netInfo = useNetInfo();
-
-  useEffect(() => {
-    if (netInfo.isInternetReachable) {
-      (async () => {
-        await getLocation(true);
-      })();
-    } else {
-      (async () => await getLocation(false))();
-    }
-  }, [getLocation, netInfo, options.isFetching]);
 
   const [currentView, setCurrentView] = useState(0);
 
@@ -45,7 +25,7 @@ const MainPage = () => {
     }
   };
 
-  if (inGermany) {
+  if (location.inGermany) {
     return (
       <RkiData
         {...{
@@ -54,9 +34,9 @@ const MainPage = () => {
           ...options,
         }}
         toggleView={toggleView}
-        setCanLoadAgain={setCanLoadAgain}
-        countyLocation={county}
-        locationLoading={loading}
+        setCanLoadAgain={location.setCanLoadAgain}
+        countyLocation={location.county}
+        locationLoading={location.loading}
       />
     );
   }
@@ -65,10 +45,10 @@ const MainPage = () => {
     <ScrollView
       refreshControl={
         <RefreshControl
-          refreshing={inGermany}
+          refreshing={location.inGermany}
           onRefresh={async () => {
-            setCanLoadAgain(true);
-            await getLocation(netInfo.isInternetReachable || false);
+            location.setCanLoadAgain(true);
+            await location.getLocation(netInfo.isInternetReachable || false);
           }}
         />
       }

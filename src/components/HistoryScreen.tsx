@@ -1,18 +1,28 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { View, Button, Platform, Text } from 'react-native';
 import { de } from 'date-fns/locale';
 import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
-import { format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { useStyle } from '../lib/styles';
-import { ColorSchemeContext } from '../App';
-import { Switch } from 'react-native-gesture-handler';
+import { ColorSchemeContext, CovidDataContext } from '../App';
+import { useHistoryData } from '../lib/rki-app';
+import { getDateYesterday } from '../lib/util';
+import RkiDataLoader from './RkiDataLoader';
 
 const HistoryScreen = () => {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(getDateYesterday());
   const [show, setShow] = useState(false);
 
-  const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
-  const { isDark, colors, styles } = useStyle(colorScheme);
+  const { colorScheme } = useContext(ColorSchemeContext);
+  const { countyData } = useContext(CovidDataContext);
+  const { styles } = useStyle(colorScheme);
+
+  const agsList = useMemo(() => countyData.map(f => f.ags) || [], [countyData]);
+  const populationList = useMemo(() => countyData.map(f => f.population), [
+    countyData,
+  ]);
+
+  const { historyData, options } = useHistoryData(agsList, populationList);
 
   const onChange = (_event: Event, selectedDate: Date | undefined) => {
     const currentDate = selectedDate || date;
@@ -20,12 +30,8 @@ const HistoryScreen = () => {
     setDate(currentDate);
   };
 
-  const showMode = () => {
-    setShow(true);
-  };
-
   const showDatepicker = () => {
-    showMode();
+    setShow(true);
   };
 
   return (
@@ -39,30 +45,32 @@ const HistoryScreen = () => {
           flex: 1,
         },
       ]}>
-      <View style={{ alignItems: 'center' }}>
-        <Text style={[styles.text, { fontSize: 13 }]}>
-          Dark Mode: Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-          Molestias, veritatis? Corporis aut provident reiciendis sequi sapiente
-          illo unde recusandae. Id?
-        </Text>
-        <Switch
-          style={styles.switch}
-          trackColor={{ false: colors.text, true: colors.text }}
-          thumbColor="#EF4444"
-          value={isDark()}
-          onValueChange={toggleColorScheme}
-        />
-      </View>
       <Button onPress={showDatepicker} title="Show date picker!" />
       <Text>selected date {format(date, 'dd MM yyyy', { locale: de })}</Text>
 
+      {options.isLoading ? (
+        <RkiDataLoader />
+      ) : (
+        <View>
+          {agsList.map(ags => (
+            <Text key={ags}>
+              {historyData[ags]?.name}{' '}
+              {
+                historyData[ags]?.history.find(f => isSameDay(f.date, date))
+                  ?.incidence
+              }
+            </Text>
+          ))}
+        </View>
+      )}
       {show && (
         <DateTimePicker
           testID="dateTimePicker"
           value={date}
           display="default"
           onChange={onChange}
-          maximumDate={new Date()}
+          minimumDate={new Date(2020, 2, 20)}
+          maximumDate={getDateYesterday()}
         />
       )}
     </View>

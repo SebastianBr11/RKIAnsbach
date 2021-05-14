@@ -7,8 +7,20 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { Animated, Appearance, ColorSchemeName, StatusBar } from 'react-native';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import {
+  Animated,
+  Appearance,
+  ColorSchemeName,
+  LogBox,
+  StatusBar,
+  View,
+} from 'react-native';
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryObserverResult,
+  RefetchOptions,
+} from 'react-query';
 import { NavigationContainer } from '@react-navigation/native';
 import {
   AnimatedTabBarNavigator,
@@ -22,6 +34,12 @@ import { HomeIcon, CalendarIcon } from './components/icons';
 import ColorThemeModule from './modules/ColorThemeModule';
 import { Swipeable } from 'react-native-gesture-handler';
 import AnimatedBootSplash from './components/AnimatedBootSplash';
+import { CovidCountyData, CovidData } from './types/CovidData.d';
+import { useCovidData } from './lib/rki-app';
+import { useLocation } from './lib/locationService';
+import { useNetInfo } from '@react-native-community/netinfo';
+
+LogBox.ignoreLogs(['Setting a timer']);
 
 const queryClient = new QueryClient();
 
@@ -34,6 +52,84 @@ export const ColorSchemeContext = createContext<AppContextInterface>({
   colorScheme: 'light',
   toggleColorScheme: () => {},
 });
+
+export interface ICovidDataContext {
+  countyData: CovidCountyData[];
+  setCountyData: React.Dispatch<React.SetStateAction<CovidCountyData[]>>;
+  options: {
+    isSuccess: boolean;
+    error: Error | null;
+    isError: boolean;
+    isLoading: boolean;
+    isFetching: boolean;
+    refetch: (
+      options?: RefetchOptions | undefined,
+    ) => Promise<QueryObserverResult<CovidData, Error>>;
+    status: 'idle' | 'error' | 'loading' | 'success';
+  };
+  location: {
+    getLocation: (hasInternet: boolean) => Promise<void>;
+    county: string | null;
+    inGermany: boolean;
+    setCanLoadAgain: React.Dispatch<React.SetStateAction<boolean>>;
+    loading: boolean;
+  };
+}
+
+export const CovidDataContext = createContext<ICovidDataContext>(
+  {} as ICovidDataContext,
+);
+
+export const CovidDataContextProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const {
+    getLocation,
+    county,
+    inGermany,
+    setCanLoadAgain,
+    loading,
+  } = useLocation();
+  const covidData = useCovidData(county || 'Ansbach', inGermany);
+  const [countyData, setCountyData] = useState<CovidCountyData[]>([]);
+  const [isInContext, setIsInContext] = useState(false);
+  const netInfo = useNetInfo();
+
+  useEffect(() => {
+    if (netInfo.isInternetReachable) {
+      (async () => {
+        await getLocation(true);
+      })();
+    } else {
+      (async () => await getLocation(false))();
+    }
+  }, [getLocation, netInfo, covidData.options.isFetching]);
+
+  useEffect(() => {
+    if (covidData.countyData.length === 0) {
+      return;
+    }
+
+    if (covidData.countyData && !isInContext) {
+      setCountyData(covidData.countyData);
+      setIsInContext(true);
+    }
+  }, [covidData, isInContext]);
+
+  return (
+    <CovidDataContext.Provider
+      value={{
+        countyData,
+        setCountyData,
+        options: covidData.options,
+        location: { getLocation, county, inGermany, setCanLoadAgain, loading },
+      }}>
+      {children}
+    </CovidDataContext.Provider>
+  );
+};
 
 const Tabs = AnimatedTabBarNavigator();
 
@@ -62,17 +158,12 @@ const SwipeableComponent = ({ children }: SwipeableComponentProps) => {
       if (willActivate !== val.value >= 1) {
         setWillActivate(val.value >= 1);
       }
-      console.log('progress', val);
-    });
-
-    trans.addListener(value => {
-      console.log('trans', value);
     });
 
     return (
       <Animated.View
         style={{
-          backgroundColor: colors.text2,
+          backgroundColor: colors.loader.backgroundColor,
           transform: [{ translateX: trans }],
           width: 200,
           alignItems: 'center',
@@ -80,7 +171,7 @@ const SwipeableComponent = ({ children }: SwipeableComponentProps) => {
           padding: 20,
         }}>
         <Animated.Text
-          style={{ color: 'white', fontSize: 20, textAlign: 'center' }}>
+          style={{ color: colors.text3, fontSize: 20, textAlign: 'center' }}>
           {willActivate ? 'Switch Color Mode' : 'Pull further 👉'}
         </Animated.Text>
       </Animated.View>
@@ -111,19 +202,31 @@ const SwipeableComponent = ({ children }: SwipeableComponentProps) => {
   );
 };
 
-function withSwipeable(Component: React.ElementType) {
-  return () => (
-    <SwipeableComponent>
-      <Component />
-    </SwipeableComponent>
-  );
+function withSwipeable(
+  Component: React.ElementType | React.ComponentType<any>,
+) {
+  return () => {
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+      setIsLoaded(true);
+
+      return () => setIsLoaded(false);
+    }, []);
+
+    if (!isLoaded) return <View />;
+
+    return (
+      <SwipeableComponent>
+        <Component />
+      </SwipeableComponent>
+    );
+  };
 }
 
 export default function App() {
   const [colorScheme, setColorScheme] = useState(Appearance.getColorScheme());
   const { isDark, colors } = useStyle(colorScheme);
-
-  console.log(colors.bg);
 
   Appearance.addChangeListener(e => {
     setColorScheme(e.colorScheme);
@@ -157,72 +260,74 @@ export default function App() {
           barStyle={isDark() ? 'light-content' : 'dark-content'}
           backgroundColor={colors.bg}
         />
-        <AnimatedBootSplash>
-          {({ completeBootSplash }) => (
-            <NavigationContainer onReady={completeBootSplash}>
-              <Tabs.Navigator
-                tabBarOptions={{
-                  activeBackgroundColor: colors.text3,
-                  activeTintColor: colors.tabBarText,
-                  inactiveTintColor: colors.text,
-                }}
-                appearance={{
-                  dotSize: DotSize.SMALL,
-                  tabBarBackground: colors.tabBar,
-                  whenInactiveShow: TabElementDisplayOptions.ICON_ONLY,
-                }}>
-                <Tabs.Screen
-                  component={withSwipeable(MainPage)}
-                  name="Home"
-                  options={{
-                    tabBarIcon: ({
-                      focused,
-                      color,
-                      size,
-                    }: {
-                      focused: boolean;
-                      color: string;
-                      size: number;
-                    }) => (
-                      <HomeIcon
-                        fill={focused ? color : colors.text3}
-                        height={size ? size : 24}
-                        width={size ? size : 24}
-                      />
-                    ),
+        <CovidDataContextProvider>
+          <AnimatedBootSplash>
+            {({ completeBootSplash }) => (
+              <NavigationContainer onReady={completeBootSplash}>
+                <Tabs.Navigator
+                  tabBarOptions={{
+                    activeBackgroundColor: colors.text3,
+                    activeTintColor: colors.tabBarText,
+                    inactiveTintColor: colors.text,
                   }}
-                />
-                <Tabs.Screen
-                  component={withSwipeable(HistoryScreen)}
-                  name="History"
-                  options={{
-                    tabBarIcon: ({
-                      focused,
-                      color,
-                      size,
-                    }: {
-                      focused: boolean;
-                      color: string;
-                      size: number;
-                    }) => (
-                      <CalendarIcon
-                        fill={focused ? color : colors.text3}
-                        height={size ? size : 24}
-                        width={size ? size : 24}
-                      />
-                    ),
-                  }}
-                />
-                {/* {() => (
-                <SwipeableComponent>
+                  appearance={{
+                    dotSize: DotSize.SMALL,
+                    tabBarBackground: colors.tabBar,
+                    whenInactiveShow: TabElementDisplayOptions.ICON_ONLY,
+                  }}>
+                  <Tabs.Screen
+                    component={withSwipeable(MainPage)}
+                    name="Home"
+                    options={{
+                      tabBarIcon: ({
+                        focused,
+                        color,
+                        size,
+                      }: {
+                        focused: boolean;
+                        color: string;
+                        size: number;
+                      }) => (
+                        <HomeIcon
+                          fill={focused ? color : colors.text3}
+                          height={size ? size : 24}
+                          width={size ? size : 24}
+                        />
+                      ),
+                    }}
+                  />
+                  <Tabs.Screen
+                    component={withSwipeable(HistoryScreen)}
+                    name="History"
+                    options={{
+                      tabBarIcon: ({
+                        focused,
+                        color,
+                        size,
+                      }: {
+                        focused: boolean;
+                        color: string;
+                        size: number;
+                      }) => (
+                        <CalendarIcon
+                          fill={focused ? color : colors.text3}
+                          height={size ? size : 24}
+                          width={size ? size : 24}
+                        />
+                      ),
+                    }}
+                  />
+                  {/* {() => (
+                  <SwipeableComponent>
                   <HistoryScreen />
-                </SwipeableComponent>
-              )}
-            </Tabs.Screen> */}
-              </Tabs.Navigator>
-            </NavigationContainer>
-          )}
-        </AnimatedBootSplash>
+                  </SwipeableComponent>
+                  )}
+                </Tabs.Screen> */}
+                </Tabs.Navigator>
+              </NavigationContainer>
+            )}
+          </AnimatedBootSplash>
+        </CovidDataContextProvider>
       </QueryClientProvider>
     </ColorSchemeContext.Provider>
   );

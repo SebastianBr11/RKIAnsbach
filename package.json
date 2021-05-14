@@ -20,6 +20,7 @@
     "@types/react-native-dotenv": "^0.2.0",
     "date-fns": "^2.21.1",
     "react": "17.0.1",
+    "react-content-loader": "^6.0.3",
     "react-native": "0.64.0",
     "react-native-animated-nav-tab-bar": "^3.1.4",
     "react-native-bootsplash": "^3.2.3",

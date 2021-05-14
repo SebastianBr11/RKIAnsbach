@@ -26,7 +26,7 @@ const fontFamily = {
   thin: 'Inter-Thin',
 };
 
-interface Colors {
+export interface Colors {
   bg: string;
   text: string;
   text2: string;
@@ -37,9 +37,13 @@ interface Colors {
   primary600: string;
   tabBar: string;
   tabBarText: string;
+  loader: {
+    backgroundColor: string;
+    foregroundColor: string;
+  };
 }
 
-const colors = (isDark: () => boolean) => ({
+const colors = (isDark: () => boolean): Colors => ({
   bg: isDark() ? '#1F222F' : '#F9FAFB',
   text: isDark() ? '#E5E7EB' : '#4B5563',
   text2: '#9CA3AF',
@@ -50,6 +54,10 @@ const colors = (isDark: () => boolean) => ({
   primary600: isDark() ? '#FECACA' : '#DC2626',
   tabBar: isDark() ? '#222835' : '#ffffff',
   tabBarText: isDark() ? '#1F2937' : '#F9FAFB',
+  loader: {
+    backgroundColor: isDark() ? '#242835' : '#f3f3f3',
+    foregroundColor: isDark() ? '#383D55' : '#ecebeb',
+  },
 });
 
 const styleSheet = (theColors: Colors) =>

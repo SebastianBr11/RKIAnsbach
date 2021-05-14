@@ -65,12 +65,10 @@ export const useLocation = () => {
     const hasLocationPerm = await hasLocationPermission();
     const storedLocation = await AsyncStorage.getItem(LOCATION);
 
-    console.log('has stored location', !!storedLocation);
     if (!!storedLocation && !hasInternet) {
       const { storedCounty, storedInGermany } = JSON.parse(storedLocation);
       setCounty(storedCounty);
       setInGermany(storedInGermany);
-      console.log('set county and inGermany', storedCounty, storedInGermany);
       return;
     }
 
@@ -87,16 +85,13 @@ export const useLocation = () => {
     if (loading && canLoadAgain) {
       Geolocation.getCurrentPosition(
         position => {
-          console.log('position', position);
           setLoading(false);
           setLocation(position);
           setCanLoadAgain(false);
-          console.log('got current position');
         },
         error => {
           setLoading(false);
           Alert.alert(`Code ${error.code}`, error.message);
-          console.log('error: ', error);
         },
         {
           accuracy: {
@@ -122,10 +117,7 @@ export const useLocation = () => {
             County,
             Country,
           } = data.Response.View[0].Result[0].Location.Address;
-          // console.log('data: ', data);
-          console.log('setting in germany');
           setInGermany(Country === 'DEU');
-          console.log('setting to local storage');
           await AsyncStorage.setItem(
             LOCATION,
             JSON.stringify({
@@ -144,8 +136,6 @@ export const useLocation = () => {
   //   location,
   //   formatRelative(location.timestamp, new Date(), { locale: de }),
   // );
-
-  console.log('location loading', loading);
 
   return { getLocation, county, location, inGermany, setCanLoadAgain, loading };
 };

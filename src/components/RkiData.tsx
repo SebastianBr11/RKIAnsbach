@@ -6,7 +6,6 @@ import {
   RefreshControl,
   ScrollView,
   StatusBar,
-  Switch,
   Text,
   ToastAndroid,
   TouchableOpacity,
@@ -16,6 +15,7 @@ import { QueryObserverResult, RefetchOptions } from 'react-query';
 import { ColorSchemeContext } from '../App';
 import { useStyle } from '../lib/styles';
 import { CovidCountyData, CovidData } from '../types/CovidData';
+import RkiDataLoader from './RkiDataLoader';
 
 interface RkiDataProps {
   data: CovidCountyData;
@@ -48,8 +48,8 @@ const RkiData = ({
   countyLocation,
   locationLoading: _locationLoading,
 }: RkiDataProps) => {
-  const { colorScheme, toggleColorScheme } = useContext(ColorSchemeContext);
-  const { isDark, colors, styles } = useStyle(colorScheme);
+  const { colorScheme } = useContext(ColorSchemeContext);
+  const { colors, styles } = useStyle(colorScheme);
 
   const netInfo = useNetInfo();
 
@@ -68,7 +68,7 @@ const RkiData = ({
           justifyContent: 'center',
           backgroundColor: colors.bg,
         }}>
-        <Text style={[styles.text]}>Loading...</Text>
+        <RkiDataLoader {...colors.loader} />
       </View>
     );
   }
@@ -115,14 +115,6 @@ const RkiData = ({
             />
           }
           contentContainerStyle={styles.scrollView}>
-          <Text style={[styles.text, { fontSize: 13 }]}>Dark Mode: </Text>
-          <Switch
-            style={styles.switch}
-            trackColor={{ false: colors.text, true: colors.text }}
-            thumbColor="#EF4444"
-            value={isDark()}
-            onValueChange={toggleColorScheme}
-          />
           <Text
             style={[
               styles.header,
@@ -160,10 +152,6 @@ const RkiData = ({
       </View>
     );
   }
-
-  // console.log('data rkidata: ', data);
-
-  console.log('status', status, 'data', data);
 
   return (
     <ScrollView
