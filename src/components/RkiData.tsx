@@ -13,9 +13,14 @@ import {
 } from 'react-native';
 import { QueryObserverResult, RefetchOptions } from 'react-query';
 import { ColorSchemeContext } from '../App';
+import lang from '../lib/lang';
 import { useStyle } from '../lib/styles';
 import { CovidCountyData, CovidData } from '../types/CovidData';
 import RkiDataLoader from './RkiDataLoader';
+
+const {
+  de: { rkiData },
+} = lang;
 
 interface RkiDataProps {
   data: CovidCountyData;
@@ -82,20 +87,17 @@ const RkiData = ({
             justifyContent: 'center',
           },
         ]}>
-        <Text style={[styles.text]}>Oops, there was an error</Text>
+        <Text style={[styles.text]}>{rkiData.error.error}</Text>
         <TouchableOpacity
           onPress={() => {
             if (netInfo.isInternetReachable) {
               refetch();
             } else {
-              ToastAndroid.show(
-                'Please make sure you are connected to the internet and try again.',
-                ToastAndroid.LONG,
-              );
+              ToastAndroid.show(rkiData.error.toast, ToastAndroid.LONG);
             }
           }}
           style={[styles.button, { marginTop: 20 }]}>
-          <Text style={styles.buttonText}>Try Again</Text>
+          <Text style={styles.buttonText}>{rkiData.error.button}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -120,23 +122,25 @@ const RkiData = ({
               styles.header,
               { flex: 1, marginTop: StatusBar.currentHeight },
             ]}>
-            Hi, this is the RKI App for Your City
+            {rkiData.main.header}
           </Text>
           <View style={[{ flex: 2, justifyContent: 'center' }]}>
             <Text style={styles.text}>{data.county}</Text>
             <Text style={styles.text}>
-              Inzidenz{' '}
+              {rkiData.main.incidence}{' '}
               <Text style={styles.boldText}>
                 {data.weekIncidence.toFixed(2)}
               </Text>
             </Text>
-            <Text style={styles.text}>{data.cases} Fälle</Text>
+            <Text style={styles.text}>
+              {data.cases} {rkiData.main.cases}
+            </Text>
             <Text style={styles.dateText}>
-              Zuletzt aktualisiert:{' '}
+              {rkiData.main.lastUpdated}{' '}
               {formatRelative(data.lastUpdated, new Date(), {
                 locale: de,
               })}{' '}
-              Uhr
+              {rkiData.main.clock}
             </Text>
           </View>
           <View
@@ -145,7 +149,7 @@ const RkiData = ({
               disabled={!canSwitch}
               onPress={toggleView}
               style={[styles.button, { opacity: !canSwitch ? 0.2 : 1 }]}>
-              <Text style={styles.buttonText}>Switch Numbers</Text>
+              <Text style={styles.buttonText}>{rkiData.main.button}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

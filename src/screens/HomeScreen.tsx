@@ -2,10 +2,15 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import React, { useContext, useState } from 'react';
 import { RefreshControl, ScrollView, Text } from 'react-native';
 import { ColorSchemeContext, CovidDataContext } from '../App';
+import lang from '../lib/lang';
 import { useStyle } from '../lib/styles';
-import RkiData from './RkiData';
+import RkiData from '../components/RkiData';
 
-const MainPage = () => {
+const {
+  de: { homeScreen: mainPage },
+} = lang;
+
+const HomeScreen = () => {
   const netInfo = useNetInfo();
   const { options, countyData, location } = useContext(CovidDataContext);
   const { colors, styles } = useStyle(
@@ -59,11 +64,10 @@ const MainPage = () => {
         backgroundColor: colors.bg,
       }}>
       <Text style={[styles.text, { fontSize: 30, paddingHorizontal: 20 }]}>
-        Make sure you're connected to the internet and you're currently in
-        Germany, then try again
+        {mainPage.default}
       </Text>
     </ScrollView>
   );
 };
 
-export default MainPage;
+export default HomeScreen;

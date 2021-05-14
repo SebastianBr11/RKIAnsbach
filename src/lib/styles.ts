@@ -14,7 +14,7 @@ export const useStyle = (colorScheme: ColorSchemeName) => {
   };
 };
 
-const fontFamily = {
+export const fontFamily = {
   black: 'Inter-Black',
   bold: 'Inter-Bold',
   extraBold: 'Inter-ExtraBold',
@@ -31,6 +31,7 @@ export interface Colors {
   text: string;
   text2: string;
   text3: string;
+  text4: string;
   primary100: string;
   primary300: string;
   primary500: string;
@@ -48,6 +49,7 @@ const colors = (isDark: () => boolean): Colors => ({
   text: isDark() ? '#E5E7EB' : '#4B5563',
   text2: '#9CA3AF',
   text3: isDark() ? '#F9FAFB' : '#1F2937',
+  text4: isDark() ? '#F9FAFB' : '#6B7280',
   primary100: isDark() ? '#7F1D1D' : '#FEE2E2',
   primary300: isDark() ? '#B91C1C' : '#FCA5A5',
   primary500: '#EF4444',
