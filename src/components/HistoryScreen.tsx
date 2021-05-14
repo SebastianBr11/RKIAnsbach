@@ -53,12 +53,14 @@ const HistoryScreen = () => {
       ) : (
         <View>
           {agsList.map(ags => (
-            <Text key={ags}>
+            <Text style={styles.dateText} key={ags}>
               {historyData[ags]?.name}{' '}
-              {
-                historyData[ags]?.history.find(f => isSameDay(f.date, date))
-                  ?.incidence
-              }
+              <Text style={styles.boldText}>
+                {
+                  historyData[ags]?.history.find(f => isSameDay(f.date, date))
+                    ?.incidence
+                }
+              </Text>
             </Text>
           ))}
         </View>

@@ -28,19 +28,19 @@ const fetchFullHistoryData = async ({
   ];
 }) => {
   const fullHistoryData = await getItem();
-  // console.log('fuull', fullHistoryData);
 
   let historyDataObject = {};
   let hasData = false;
 
   try {
-    const lastUpdated = parseDate(
-      JSON.parse(fullHistoryData || '').meta.lastUpdate,
+    const thing: HistoryData = JSON.parse(fullHistoryData || '');
+    const lastUpdated = new Date(
+      thing.features[thing.features.length - 1].attributes.MeldeDatum,
     );
 
     // First fetches data from local storage
     if (fullHistoryData) {
-      console.log('does have history data');
+      console.log('does have history data', lastUpdated);
       hasData = true;
       historyDataObject = JSON.parse(fullHistoryData);
     }
@@ -208,6 +208,8 @@ const getHistoryDataFromData = (
         };
       }, {} as FormattedHistoryData) || ({} as FormattedHistoryData);
 
+  console.log('history data', Object.keys(historyData), agsList);
+
   for (let i = 0; i < agsList.length; i++) {
     for (let j = 6; j < historyData[agsList[i]].history.length; j++) {
       let sum = 0;
@@ -218,9 +220,6 @@ const getHistoryDataFromData = (
         (sum / populationList[i]) * 100000;
     }
   }
-
-  console.log(historyData[agsList[1]].history[0]);
-  console.log(populationList);
   return historyData;
 };
 
@@ -236,7 +235,9 @@ const formatHistoryUrl = (agsList: string[]) => {
 };
 
 export const useHistoryData = (agsList: string[], populationList: number[]) => {
-  const { getItem, setItem } = useLocalStorage(COVID_HISTORY_DATA);
+  const { getItem, setItem } = useLocalStorage(
+    COVID_HISTORY_DATA + agsList.join('-'),
+  );
   const { isInternetReachable }: NetInfoState = useNetInfo();
 
   const {
@@ -249,7 +250,13 @@ export const useHistoryData = (agsList: string[], populationList: number[]) => {
     status,
     refetch,
   }: UseQueryResult<HistoryData, Error> = useQuery(
-    ['rki-history', isInternetReachable || false, getItem, setItem, agsList],
+    [
+      'rki-history' + agsList.join('-'),
+      isInternetReachable || false,
+      getItem,
+      setItem,
+      agsList,
+    ],
     fetchFullHistoryData,
     {
       enabled: agsList.length > 0,
@@ -313,6 +320,7 @@ export const useCovidData = (county: string, inGermany: boolean) => {
   );
 
   const [currentCounty, setCurrentCounty] = useState('');
+  const [newCounty, setNewCounty] = useState(false);
 
   const countyDataRef = useRef<CovidCountyData[]>([]);
 
@@ -323,7 +331,9 @@ export const useCovidData = (county: string, inGermany: boolean) => {
 
     if (isSuccess && currentCounty !== county) {
       countyDataRef.current = getCountyDataFromData(data, county) || [];
+      console.log('setting new county');
       setCurrentCounty(county);
+      setNewCounty(true);
     }
   }, [isSuccess, county, data, currentCounty, inGermany]);
 
@@ -338,6 +348,8 @@ export const useCovidData = (county: string, inGermany: boolean) => {
       status,
     },
     countyData: countyDataRef.current,
+    newCounty,
+    setNewCounty,
   };
 };
 

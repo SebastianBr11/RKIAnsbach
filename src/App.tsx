@@ -94,7 +94,6 @@ export const CovidDataContextProvider = ({
   } = useLocation();
   const covidData = useCovidData(county || 'Ansbach', inGermany);
   const [countyData, setCountyData] = useState<CovidCountyData[]>([]);
-  const [isInContext, setIsInContext] = useState(false);
   const netInfo = useNetInfo();
 
   useEffect(() => {
@@ -112,11 +111,11 @@ export const CovidDataContextProvider = ({
       return;
     }
 
-    if (covidData.countyData && !isInContext) {
+    if (covidData.countyData && covidData.newCounty) {
       setCountyData(covidData.countyData);
-      setIsInContext(true);
+      covidData.setNewCounty(false);
     }
-  }, [covidData, isInContext]);
+  }, [county, covidData, covidData.countyData, covidData.newCounty]);
 
   return (
     <CovidDataContext.Provider
