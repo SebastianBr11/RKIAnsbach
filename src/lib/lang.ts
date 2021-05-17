@@ -7,6 +7,9 @@ const de: langOptions = {
     default:
       'Stellen Sie sicher, dass Sie mit dem Internet verbunden sind und sich gerade in Deutschland befinden, dann erneut versuchen',
   },
+  historyScreen: {
+    showDatePicker: 'Datum auswählen',
+  },
   rkiData: {
     error: {
       error: 'Ups, es gab nen Fehler',
@@ -35,6 +38,9 @@ const en: langOptions = {
     default:
       "Make sure you're connected to the internet and you're currently in Germany, then try again",
   },
+  historyScreen: {
+    showDatePicker: 'Show Date Picker',
+  },
   rkiData: {
     error: {
       error: 'Oops, there was an error',
@@ -60,6 +66,9 @@ interface langOptions {
   };
   homeScreen: {
     default: string;
+  };
+  historyScreen: {
+    showDatePicker: string;
   };
   rkiData: {
     error: {

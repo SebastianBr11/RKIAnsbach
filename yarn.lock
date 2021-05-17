@@ -6466,6 +6466,11 @@ react-native-dotenv@^2.5.5:
   dependencies:
     dotenv "^8.0.0"
 
+react-native-exception-handler@^2.10.10:
+  version "2.10.10"
+  resolved "https://registry.yarnpkg.com/react-native-exception-handler/-/react-native-exception-handler-2.10.10.tgz#b6bfe2b7e6ea4a4deb1f518f48ce2ee1d4843497"
+  integrity sha512-otAXGoZDl1689OoUJWN/rXxVbdoZ3xcmyF1uq/CsizdLwwyZqVGd6d+p/vbYvnF996FfEyAEBnHrdFxulTn51w==
+
 react-native-geolocation-service@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/react-native-geolocation-service/-/react-native-geolocation-service-5.2.0.tgz#eeb1c70cf842e612d68bc3d8706c0fdd917efaf5"
@@ -6506,6 +6511,11 @@ react-native-redash@=16.0.11, react-native-redash@^16.0.11:
     normalize-svg-path "^1.0.1"
     parse-svg-path "^0.1.2"
 
+react-native-restart@^0.0.22:
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/react-native-restart/-/react-native-restart-0.0.22.tgz#81fcb7f31e35951d85410c68b9556acf3ab88705"
+  integrity sha512-XwCqAMAKsO8yCM3xACPFKvkDQZe41lcavOuO0gUEu803IuTLtciualCq/qs83ryRDCDh1jkXYRqFjsGjLMCN3Q==
+
 react-native-safe-area-context@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/react-native-safe-area-context/-/react-native-safe-area-context-3.2.0.tgz#06113c6b208f982d68ab5c3cebd199ca93db6941"
@@ -6521,10 +6531,10 @@ react-native-screens@^3.1.1:
   resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-3.1.1.tgz#2cd4496c5e3ed1ffbaf77962b8fcc10be3af2158"
   integrity sha512-cjhK85T8LQ7uqqmwvLb8FKNk1RfgJd1jtbUm1lOxUmJreFki5Wh2SUlx0DAvNG35U6quGD15KPYRducGa+M04g==
 
-react-native-svg-app-icon@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-svg-app-icon/-/react-native-svg-app-icon-0.3.0.tgz#a058751c55d522a38cf8a93bff5247c1b90330fd"
-  integrity sha512-DvBxyO/bezP8OQVftN7VEIjGVzVxalFmRZH8c8Ca7u7NgW4r2/RaUgg0119gRR5xrpCWX5DKz8NSoO73xpGI+Q==
+react-native-svg-app-icon@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-svg-app-icon/-/react-native-svg-app-icon-0.4.0.tgz#505be013dffb808f3c27ac32f146ff4c39a784b5"
+  integrity sha512-Mt/QHQalGEh5hHbcDyKkBZsho2lH98KJ5wzURMbsMbXkmdxfbuUbXvy3EIcx1nRUL+mr+AYJsmtOc9AHPEMXkg==
   dependencies:
     fs-extra ">=3.0.0"
     sharp ">=0.23.0"

@@ -3,12 +3,17 @@ import { format, isSameDay } from 'date-fns';
 import { de } from 'date-fns/locale';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { ColorSchemeContext, CovidDataContext } from '../App';
 import { useHistoryData } from '../lib/rki-app';
 import { fontFamily, useStyle } from '../lib/styles';
 import { getDateYesterday } from '../lib/util';
 import RkiDataLoader from '../components/RkiDataLoader';
+import lang from '../lib/lang';
+
+const {
+  de: { historyScreen },
+} = lang;
 
 const HistoryScreen = () => {
   const [date, setDate] = useState(getDateYesterday());
@@ -40,14 +45,15 @@ const HistoryScreen = () => {
   }, []);
 
   return (
-    <View
-      style={[
+    <ScrollView
+      contentContainerStyle={[
         styles.container,
         {
           alignItems: 'stretch',
           justifyContent: 'space-evenly',
           padding: 30,
           flex: 1,
+          minHeight: 500,
         },
       ]}>
       <Text style={[styles.boldText, { fontSize: 50 }]}>
@@ -60,16 +66,8 @@ const HistoryScreen = () => {
         <View
           style={{
             backgroundColor: colors.tabBar,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 9,
-            },
-            shadowOpacity: 0.23,
-            shadowRadius: 15,
-            elevation: isDark() ? 0 : 15,
+            elevation: isDark() ? 0 : 1,
             paddingVertical: 30,
-            paddingHorizontal: 30,
             // borderColor: colors.tabBar,
             // borderWidth: 3,
             borderRadius: 5,
@@ -117,10 +115,10 @@ const HistoryScreen = () => {
       )}
       <TouchableOpacity style={[styles.button]} onPress={showDatepicker}>
         <Text style={[styles.buttonText, { textAlign: 'center' }]}>
-          Show Date Picker!
+          {historyScreen.showDatePicker}
         </Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
