@@ -11,7 +11,7 @@ export default function Index() {
 		>
 			<Text
 				style={{
-					fontFamily: 'Inter_400Regular',
+					fontFamily: 'Inter_500Medium',
 				}}
 			>
 				Edit app/index.tsx to edit this screen.
