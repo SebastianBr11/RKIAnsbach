@@ -1,4 +1,4 @@
-import { HomeIcon } from '@/src/components/icons'
+import { CalendarIcon, HomeIcon } from '@/src/components/icons'
 import { useStyle } from '@/src/lib/styles'
 import { Tabs } from 'expo-router'
 
@@ -8,16 +8,19 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.tabBarText,
-        tabBarActiveBackgroundColor: colors.text3,
-        tabBarInactiveTintColor: colors.text,
+        // For now set different tint colors to differentiate between tabs
+        tabBarActiveTintColor: colors.primary600,
+        //tabBarActiveBackgroundColor: colors.text3,
+        tabBarInactiveTintColor: colors.text2,
+        tabBarInactiveBackgroundColor: colors.tabBar,
       }}>
       <Tabs.Screen
-        name="home"
+        name="index"
         options={{
+          title: 'Home',
           tabBarIcon: ({ focused, color, size }) => (
             <HomeIcon
-              fill={focused ? color : colors.text3}
+              fill={color}
               height={size ? size : 24}
               width={size ? size : 24}
             />
@@ -27,9 +30,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="history"
         options={{
+          title: 'History',
           tabBarIcon: ({ focused, color, size }) => (
             <CalendarIcon
-              fill={focused ? color : colors.text3}
+              fill={color}
               height={size ? size : 24}
               width={size ? size : 24}
             />

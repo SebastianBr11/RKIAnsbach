@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native'
 
 export const useStyle = () => {
-  // For now set it do dark mode
+  // For now set it do light mode
   const isDark = () => {
-    return true
+    return false
   }
 
   const theColors = colors(isDark)
