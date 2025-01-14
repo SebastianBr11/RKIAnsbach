@@ -27,7 +27,7 @@ const de: langOptions = {
     },
     default: 'Etwas ging schief',
   },
-};
+}
 
 const en: langOptions = {
   swipeable: {
@@ -57,43 +57,43 @@ const en: langOptions = {
     },
     default: 'Something went wrong',
   },
-};
+}
 
 interface langOptions {
   swipeable: {
-    pullFurther: string;
-    switchColorMode: string;
-  };
+    pullFurther: string
+    switchColorMode: string
+  }
   homeScreen: {
-    default: string;
-  };
+    default: string
+  }
   historyScreen: {
-    showDatePicker: string;
-  };
+    showDatePicker: string
+  }
   rkiData: {
     error: {
-      error: string;
-      toast: string;
-      button: string;
-    };
+      error: string
+      toast: string
+      button: string
+    }
     main: {
-      header: string;
-      incidence: string;
-      cases: string;
-      lastUpdated: string;
-      clock: string;
-      button: string;
-    };
-    default: string;
-  };
+      header: string
+      incidence: string
+      cases: string
+      lastUpdated: string
+      clock: string
+      button: string
+    }
+    default: string
+  }
 }
 
 interface lang {
-  de: typeof en;
-  en: langOptions;
+  de: typeof en
+  en: langOptions
 }
 
 export default {
   de,
   en,
-} as lang;
+} as lang

@@ -1,18 +1,19 @@
-import { ColorSchemeName, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native'
 
-export const useStyle = (colorScheme: ColorSchemeName) => {
+export const useStyle = () => {
+  // For now set it do light mode
   const isDark = () => {
-    return colorScheme === 'dark';
-  };
+    return false
+  }
 
-  const theColors = colors(isDark);
+  const theColors = colors(isDark)
   return {
     isDark,
     colors: theColors,
     fontFamily,
     styles: styleSheet(theColors),
-  };
-};
+  }
+}
 
 export const fontFamily = {
   black: 'Inter-Black',
@@ -24,24 +25,24 @@ export const fontFamily = {
   regular: 'Inter-Regular',
   semiBold: 'Inter-SemiBold',
   thin: 'Inter-Thin',
-};
+}
 
 export interface Colors {
-  bg: string;
-  text: string;
-  text2: string;
-  text3: string;
-  text4: string;
-  primary100: string;
-  primary300: string;
-  primary500: string;
-  primary600: string;
-  tabBar: string;
-  tabBarText: string;
+  bg: string
+  text: string
+  text2: string
+  text3: string
+  text4: string
+  primary100: string
+  primary300: string
+  primary500: string
+  primary600: string
+  tabBar: string
+  tabBarText: string
   loader: {
-    backgroundColor: string;
-    foregroundColor: string;
-  };
+    backgroundColor: string
+    foregroundColor: string
+  }
 }
 
 const colors = (isDark: () => boolean): Colors => ({
@@ -60,7 +61,7 @@ const colors = (isDark: () => boolean): Colors => ({
     backgroundColor: isDark() ? '#242835' : '#f3f3f3',
     foregroundColor: isDark() ? '#383D55' : '#ecebeb',
   },
-});
+})
 
 const styleSheet = (theColors: Colors) =>
   StyleSheet.create({
@@ -120,4 +121,4 @@ const styleSheet = (theColors: Colors) =>
     marginTop40: {
       marginTop: 40,
     },
-  });
+  })

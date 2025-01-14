@@ -1,4 +1,9 @@
+// https://docs.expo.dev/guides/using-eslint/
 module.exports = {
-  root: true,
-  extends: '@react-native-community',
-};
+  extends: ['expo', 'prettier'],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': 'error',
+  },
+  ignorePatterns: ['/dist/*'],
+}
