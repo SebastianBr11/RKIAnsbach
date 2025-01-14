@@ -1,19 +1,24 @@
-import { Text, View } from 'react-native'
+import lang from '@/src/lib/lang'
+import { useStyle } from '@/src/lib/styles'
+import { ScrollView, Text, View } from 'react-native'
+
+const {
+  de: { homeScreen },
+} = lang
 
 export default function Index() {
+  const { colors, styles } = useStyle()
   return (
-    <View
-      style={{
+    <ScrollView
+      contentContainerStyle={{
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.bg,
       }}>
-      <Text
-        style={{
-          fontFamily: 'Inter_500Medium',
-        }}>
-        Edit app/index.tsx to edit this screen.
+      <Text style={[styles.text, { fontSize: 30, paddingHorizontal: 20 }]}>
+        {homeScreen.default}
       </Text>
-    </View>
+    </ScrollView>
   )
 }
